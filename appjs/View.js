@@ -4,6 +4,8 @@ Ext.define('Edu.app.From.Factor', {
     title: '测试因子输入',
     xtype: 'factorFrom',
     region: 'north',
+    width: '100%',
+    minHight: '35%',
     tools: [{
         type: 'search',
         handler: function (event, target, owner, tool) {
@@ -74,6 +76,7 @@ Ext.define('Edu.app.Grid.Array', {
     split: true,
     autoDestroy: true,
     width: '100%',
+    minHight: '35%',
     SetData: function (keys, array) {
         let store = Ext.create('Edu.app.OrthogonalArray', {
             fields: keys,
@@ -94,6 +97,7 @@ Ext.define('Edu.app.Grid.Cases', {
     split: true,
     autoDestroy: true,
     width: '100%',
+    minHight: '35%',
     SetData: function (keys, array) {
         let store = Ext.create('Edu.app.OrthogonalArray', {
             fields: keys,

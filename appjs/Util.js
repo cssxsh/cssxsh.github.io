@@ -4,7 +4,7 @@ Ext.define('Edu.app', {
     singleton: true,
     info: {
         name: '正交表生成器',
-        version: '0.0.2',
+        version: '0.0.3',
         author: 'cssxsh'
     },
     OA: [],
@@ -14,13 +14,29 @@ Ext.define('Edu.app', {
     Init: function () {
         this.OutputInfo();
 
-        Ext.Ajax.request({
+        let conn = Ext.create('Ext.data.Connection', {
+            method: 'GET',
             url: '../json/arr.json',
+            disableCaching: false
+        });
+        conn.request({
+            failure: function () {
+                console.log('加载arr.json失败');
+            },
             success: function (response) {
                 let text = response.responseText;
                 Edu.app.OA = Ext.util.JSON.decode(text);
             }
         });
+        // let request = new XMLHttpRequest();
+        // request.open('get', '../json/arr.json');
+        // request.send(null);
+        // request.onload = function () {
+        //     if (request.status == 200) {
+        //         let text = request.responseText;
+        //         Edu.app.OA = Ext.util.JSON.decode(text);
+        //     }
+        // }
 
         Ext.create('Edu.app.Window', {
             title: '测试用例生成',
