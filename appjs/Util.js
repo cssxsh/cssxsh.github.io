@@ -4,7 +4,7 @@ Ext.define('Edu.app', {
     singleton: true,
     info: {
         name: '正交表生成器',
-        version: '0.0.1',
+        version: '0.0.2',
         author: 'cssxsh'
     },
     OA: [],
