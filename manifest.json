@@ -1,14 +1,25 @@
 {
-    "name": "一个PWA示例",
-    "short_name": "PWA示例",
-    "start_url": "/",
+    "name": "测试用例生成器",
+    "short_name": "用例生成器",
+    "start_url": ".",
     "display": "standalone",
     "background_color": "#fff",
     "theme_color": "#3eaf7c",
+    "lang": "zh-CN",
     "icons": [
+        {
+            "src": "/images/app-144.png",
+            "sizes": "144x144",
+            "type": "image/png"
+        },
         {
             "src": "/images/app-128.png",
             "sizes": "128x128",
+            "type": "image/png"
+        },
+        {
+            "src": "/images/app-16.png",
+            "sizes": "16x16",
             "type": "image/png"
         }
     ]
