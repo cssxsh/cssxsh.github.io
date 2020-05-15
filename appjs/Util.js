@@ -4,7 +4,7 @@ Ext.define('Edu.app', {
     singleton: true,
     info: {
         name: '正交表生成器',
-        version: '0.0.3',
+        version: '0.0.4',
         author: 'cssxsh'
     },
     OA: [],
@@ -38,38 +38,67 @@ Ext.define('Edu.app', {
         //     }
         // }
 
+        Ext.QuickTips.init();
         Ext.create('Edu.app.Window', {
-            title: '测试用例生成',
+            title: this.info.name + ' ver ' + this.info.version + ' by ' + this.info.author,
         }).show();
     },
     GetArray: function (hashmap) {
-        let ncolumns = 0;
-        let nrows = 1;
-        let key = "";
+        let result = {
+            ncolumns: 0,
+            nrows: 0,
+            key: ' ',
+            arr: []
+        }
+        let nrows_min = 1; // 最小实验数
         let record = [];
-        let OA_arr;
+        let farr = [];
         for (let factor in hashmap) {
             let arr = hashmap[factor];
-            nrows += arr.length - 1;
-            ncolumns++;
-            record[arr.length] = (record[arr.length] === undefined) ? 1 : record[arr.length] + 1;
+            nrows_min += arr.length - 1;
+            result.ncolumns++;
+            record[arr.length] = (record[arr.length] || 0) + 1;
         }
         for (let n in record) {
-            key += ' ' + parseInt(n) + '^' + record[n];
+            result.key += ' ' + parseInt(n) + '^' + record[n];
+            farr.push(parseInt(n));
         }
-        key = key.slice(1);
-        // console.log(key);
-        OA_arr = this.OA[key];
-        return OA_arr;
-    },
-    SetTable: function (factors, array, panel) {
-        let keys = Object.keys(factors);
-        let cases = array.map((line) => {
-            return line.map((cell, ncolumns) => {
-                return factors[keys[ncolumns]][cell];
-            });
-        });
-        panel.down('[xtype=arraygrid]').SetData(keys, array);
-        panel.down('[xtype=casesgrid]').SetData(keys, cases);
+        // // 最大公因数
+        // let gcd = function (x, y) {
+        //     let max, min, temp;
+        //     max = x > y ? x : y;
+        //     min = x < y ? x : y;
+        //     while (max % min) {
+        //         temp = max % min;
+        //         max = min;
+        //         min = temp;
+        //     }
+        //     return min;
+        // };
+        // // 最小公倍数  
+        // let lcm = function (x, y) {
+        //     return x * y / gcd(x, y);
+        // };
+        // let lcm4arr = function (arr) {
+        //     let result = 1;
+        //     arr.forEach((num) => {
+        //         result = lcm(num, result);
+        //     });
+        //     return result;
+        // };
+        let getNrows = function (nrows_min, arr) {
+            let nrows = nrows_min;
+
+            while (!arr.every((n) => (nrows % n === 0))) {
+                nrows++;
+            };
+            return nrows;
+        }
+
+        // let lcm_arr = lcm4arr(arr);
+        result.key = result.key.slice(2);
+        result.arr = Edu.app.OA[result.key] || false;
+        result.nrows = getNrows(nrows_min, farr);
+        return result;
     }
 });

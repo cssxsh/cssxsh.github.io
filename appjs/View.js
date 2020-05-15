@@ -3,27 +3,7 @@ Ext.define('Edu.app.From.Factor', {
     extend: 'Ext.form.Panel',
     title: '测试因子输入',
     xtype: 'factorFrom',
-    region: 'north',
-    width: '100%',
-    minHight: '35%',
-    tools: [{
-        type: 'search',
-        handler: function (event, target, owner, tool) {
-            // console.log("Input by button");
-        }
-    }, {
-        type: 'save',
-        handler: function (event, target, owner, tool) {
-            let from = owner.up();
-            let factors = from.GetFactors();
-            let array = Edu.app.GetArray(factors);
-            if (array === undefined) {
-                Ext.Msg.alert('错误', '未找到对应的正交表');
-            } else {
-                Edu.app.SetTable(factors, array, owner.up('[xtype=appPanle]'));
-            }
-        }
-    }],
+    layout: 'fit',
     items: [{
         xtype: 'textareafield',
         inputId: 'factortext',
@@ -34,7 +14,7 @@ Ext.define('Edu.app.From.Factor', {
             let errorText = true;
             let lines = value.split('\n');
             lines.forEach((line, index) => {
-                if (!regex.exec(line)) {
+                if (line != "" && (!regex.exec(line))) {
                     errorText += "," + (index + 1);
                 }
             });
@@ -51,7 +31,8 @@ Ext.define('Edu.app.From.Factor', {
             return false;
         }
         let value = textarea.getValue();
-        let lines = value.split('\n');
+        let lines = value.split(/\n+/);
+        let last = lines.pop();
         let hashmap = {};
         let reg_1 = /:|：/;
         let reg_2 = /,|，/;
@@ -63,64 +44,241 @@ Ext.define('Edu.app.From.Factor', {
                 hashmap[f] = levels;
             });
         });
+        if (last !== "") {
+            let arr = last.split(reg_1);
+            let factors = arr[0].split(reg_2);
+            let levels = arr[1].split(reg_2);
+            factors.forEach((f) => {
+                hashmap[f] = levels;
+            });
+        }
         return hashmap;
-    }
+    },
 });
 Ext.define('Edu.app.Grid.Array', {
     extend: 'Ext.grid.Panel',
-    xtype: 'arraygrid',
+    xtype: 'arrayGrid',
     title: '正交表',
-    region: 'center',
-    border: 'true',
-    stripeRows: true,
-    split: true,
+    plugins: {
+        ptype: 'cellediting',
+        clicksToEdit: 1
+    },
+    sortableColumns: false,
+    viewConfig: {
+        columnLines: true,          // 列分割线
+        stripeRows: true,
+        forceFit: true,             // 自适应
+        // markDirty: false            // 
+    },
+    // bbar: [{
+    //     xtype: 'pagingtoolbar',
+    //     displayInfo: true,
+    //     displayMsg: '显示 {2} 条中的第 {0} 条到第 {1} 条',
+    //     emptyMsg: "正交表为空",
+    //     hidden: true,
+    //     pageSize: 5
+    // }],
     autoDestroy: true,
-    width: '100%',
-    minHight: '35%',
-    SetData: function (keys, array) {
-        let store = Ext.create('Edu.app.OrthogonalArray', {
-            fields: keys,
-            data: array
+    isOArray: function () {
+        let store = this.getStore();
+        let keys = store.config.fields || store.fields;
+        let eq = (arr) => {
+            let flag = true;
+            for (let i in arr) {
+                let lnum = false;
+                arr[i].every((v) => {
+                    if (lnum && lnum !== v) {
+                        flag = false;
+                    }
+                    lnum = v;
+                    return flag;
+                });
+                // return
+                if (!flag) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        if (store === undefined || keys === null) {
+            return false;
+        }
+        // let array = store.getRange().map(function (record) {
+        //     let data = record.getData();
+        //     let line = [];
+        //     for (let i in record) {
+
+        //     }
+        // });
+        // ①
+        let columns = [];
+        keys.forEach((key) => {
+            columns[key] = [];
         });
-        this.reconfigure(store, keys.map((key) => {
-            return { header: key, dataIndex: key };
-        }));
+        store.each((record) => {
+            let data = record.getData();
+            keys.forEach((key) => {
+                columns[key][data[key]] = (columns[key][data[key]] || 0) + 1;
+            });
+        });
+        if (!eq(columns)) {
+            return false;
+        }
+        // ②
+        let l_keys = keys;
+        let r_keys = keys;
+        let flag = true;
+        l_keys.every((l_key) => {
+            let count = [];
+            r_keys.shift();
+            r_keys.forEach((r_key) => {
+                store.each((record) => {
+                    let data = record.getData();
+                    let p = data[l_key] + ',' + data[r_key];
+                    count[p] = (count[p] || 0) + 1;
+                });
+            });
+            return flag = eq(columns);
+        });
+        return flag;
     }
 });
 Ext.define('Edu.app.Grid.Cases', {
     extend: 'Ext.grid.Panel',
-    xtype: 'casesgrid',
+    xtype: 'casesGrid',
     title: '测试用例',
-    region: 'south',
-    border: 'true',
-    stripeRows: true,
-    split: true,
+    sortableColumns: false,
+    viewConfig: {
+        columnLines: true,          // 列分割线
+        stripeRows: true,
+        forceFit: true,             // 自适应
+        markDirty: false            // 
+    },
+    // bbar: [{
+    //     xtype: 'pagingtoolbar',
+    //     displayInfo: true,
+    //     displayMsg: '显示 {2} 条中的第 {0} 条到第 {1} 条',
+    //     emptyMsg: "测试用例为空",
+    //     hidden: true
+    // }],
     autoDestroy: true,
-    width: '100%',
-    minHight: '35%',
-    SetData: function (keys, array) {
+    flex: 1
+});
+Ext.define('Edu.app.Panel', {
+    extend: 'Ext.panel.Panel',
+    xtype: 'appPanel',
+    layout: {
+        type: 'vbox',
+        align: 'stretch',
+        pack: 'start',
+    },
+    items: [{
+        flex: 1,
+        xtype: 'factorFrom',
+    }, {
+        flex: 1,
+        xtype: 'arrayGrid',
+    }, {
+        flex: 1,
+        xtype: 'casesGrid',
+    }],
+    SetData: function (factors, array) {
+        let arrayGrid = this.down('[xtype=arrayGrid]');
+        let casesGrid = this.down('[xtype=casesGrid]');
+        let keys = Object.keys(factors);
         let store = Ext.create('Edu.app.OrthogonalArray', {
             fields: keys,
             data: array
         });
-        this.reconfigure(store, keys.map((key) => {
-            return { header: key, dataIndex: key };
-        }));
-    }
-});
-Ext.define('Edu.app.Panel', {
-    extend: 'Ext.panel.Panel',
-    xtype: 'appPanle',
-    layout: {
-        type: 'auto',
-        align: 'stretch',   // 每个子元素宽度充满子容器
+        store.fields = keys;
+        arrayGrid.reconfigure(store, [{ header: '序号', xtype: 'rownumberer' }].concat(keys.map((key, index) => {
+            let colunm = {
+                header: key,
+                dataIndex: key,
+                editor: {
+                    xtype: 'numberfield',
+                    allowBlank: false,
+                    maxValue: factors[keys[index]].length - 1,
+                    minValue: 0
+                }
+            }
+            return colunm;
+        })));
+        arrayGrid.setTitle();
+        arrayGrid.doAutoRender();
+        // arrayGrid.down('[xtype=pagingtoolbar]').setVisible(true).bindStore(store);
+        casesGrid.reconfigure(store, [{ header: '序号', xtype: 'rownumberer' }].concat(keys.map((key) => {
+            let colunm = {
+                header: key,
+                dataIndex: key,
+                renderer: function (value, cellmeta, record, rowIndex, columnIndex, store) {
+                    let level = factors[keys[columnIndex - 1]][value]
+                    return level;
+                }
+            };
+            return colunm;
+        })));
+        casesGrid.getStore().commitChanges();
+        casesGrid.doAutoRender();
+        // casesGrid.down('[xtype=pagingtoolbar]').setVisible(true).bindStore(store);
     },
-    items: [{
-        xtype: 'factorFrom'
+    tbar: [{
+        xtype: 'button',
+        text: '导入工作',
+        listeners: {
+            click: function (me, event, opts) {
+                // console.log("Input by button");
+            }
+        }
     }, {
-        xtype: 'arraygrid'
+        xtype: 'button',
+        text: '保存工作',
+        listeners: {
+            click: function (me, event, opts) {
+                // console.log("Input by button");
+            }
+        }
     }, {
-        xtype: 'casesgrid'
+        xtype: 'button',
+        text: '生成用例',
+        listeners: {
+            click: function (me, event, opts) {
+                let appPanle = me.up('[xtype=appPanel]');
+                let factorFrom = appPanle.down('[xtype=factorFrom]');
+                let arrayGrid = appPanle.down('[xtype=arrayGrid]');
+                let casesGrid = appPanle.down('[xtype=casesGrid]');
+                let factors = factorFrom.GetFactors();
+                if (factors === false) {
+                    Ext.Msg.alert('错误！', '输入为空！');
+                } else {
+                    let result = Edu.app.GetArray(factors);
+                    if (!Array.isArray(result.arr)) {
+                        Ext.Msg.alert('错误！', '未找到对应的正交表，<br>请尝试手工输入。');
+                        let nrows = result.nrows;
+                        let ncolumns = result.ncolumns;
+                        result.arr = new Array(nrows).fill(new Array(ncolumns));
+                    }
+                    appPanle.SetData(factors, result.arr);
+                }
+            }
+        }
+    }, {
+        xtype: 'button',
+        text: '检查正交',
+        listeners: {
+            click: function (me, event, opts) {
+                let appPanle = me.up('[xtype=appPanel]');
+                let factorFrom = appPanle.down('[xtype=factorFrom]');
+                let arrayGrid = appPanle.down('[xtype=arrayGrid]');
+                let casesGrid = appPanle.down('[xtype=casesGrid]');
+
+                if (!arrayGrid.isOArray()) {
+                    Ext.Msg.alert('错误！', '正交表不符合正交要求！');
+                } else {
+                    arrayGrid.getStore().commitChanges();
+                }
+            }
+        }
     }]
 });
 Ext.define('Edu.app.Window', {
@@ -128,15 +286,12 @@ Ext.define('Edu.app.Window', {
     height: 600,
     width: 500,
     padding: 2,
-    layout: {
-        type: 'auto',
-        align: 'stretch',   // 每个子元素宽度充满子容器
-    },
+    layout: 'fit',
     draggable: true,
     resizable: false,
     plain: false,
     closable: false,
     items: [{
-        xtype: 'appPanle'
+        xtype: 'appPanel'
     }]
 });
