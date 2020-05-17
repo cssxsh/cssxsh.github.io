@@ -2,31 +2,22 @@
 <html>
 
 <head>
-    <link href="https://cdn.bootcss.com/extjs/6.0.0/classic/theme-classic/resources/theme-classic-all.css"
-        rel="stylesheet">
+    <link href="https://cdn.bootcss.com/extjs/6.2.0/classic/theme-crisp/resources/theme-crisp-all.css" rel="stylesheet"
+        id="theme">
     <link href="./manifest.json" rel="manifest">
-    <link href="./json/arr.json" rel="prefetch">
-    <script type="text/javascript" src="https://cdn.bootcss.com/extjs/6.0.0/ext-all.js"></script>
-    <script type="text/javascript" src="https://cdn.bootcss.com/extjs/6.0.0/classic/locale/locale-zh_CN.js"></script>
-    <script type="text/javascript" src="./appjs/Model.js"></script>
-    <script type="text/javascript" src="./appjs/Store.js"></script>
-    <script type="text/javascript" src="./appjs/Util.js"></script>
-    <script type="text/javascript" src="./appjs/View.js"></script>
-    <script type="text/javascript" src="./appjs/Controller.js"></script>
-    <script type="text/javascript" src="./appjs/app.js"></script>
-    <script>
-        // Service Workers
-        if (navigator.serviceWorker != undefined) {
-            navigator.serviceWorker.register('./sw.js')
-                .then(function (registartion) {
-                    console.log('支持sw:', registartion.scope)
-                });
-        }
-    </script>
+    <link href="./images/favicon.ico" rel="icon">
+    <script type="text/javascript" src="https://cdn.bootcss.com/extjs/6.2.0/ext-all.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcss.com/extjs/6.2.0/classic/locale/locale-zh_CN.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcss.com/xlsx/0.16.0/xlsx.full.min.js"></script>
+    <script type="text/javascript" src="./app/model/Model.js"></script>
+    <script type="text/javascript" src="./app/utils/Util.js"></script>
+    <script type="text/javascript" src="./app/store/Store.js"></script>
+    <script type="text/javascript" src="./app/controller/Main.js"></script>
+    <script type="text/javascript" src="./app/view/View.js"></script>
+    <script type="text/javascript" src="./app/Application.js"></script>
 </head>
 
 <body>
-    <div id="helloWorldPanel"></div>
 </body>
 
 </html>

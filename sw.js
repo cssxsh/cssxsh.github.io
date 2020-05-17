@@ -5,12 +5,12 @@ let cacheList = [
     './manifest.json',
     'https://cdn.bootcss.com/extjs/6.0.0/ext-all.js',
     'https://cdn.bootcss.com/extjs/6.0.0/classic/theme-neptune/resources/theme-neptune-all.css',
-    './appjs/Model.js',
-    './appjs/Store.js',
-    './appjs/Util.js',
-    './appjs/View.js',
-    './appjs/Controller.js',
-    './appjs/app.js',
+    // './appjs/Model.js',
+    // './appjs/Store.js',
+    // './appjs/Util.js',
+    // './appjs/View.js',
+    // './appjs/Controller.js',
+    // './appjs/app.js',
     './json/arr.json',
     './images/app-144.png'
 ]
