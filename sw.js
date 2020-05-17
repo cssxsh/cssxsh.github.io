@@ -1,18 +1,18 @@
-'use strict';
 let cacheStorageKey = 'minimal-pwa-1'
 let cacheList = [
     './',
     './manifest.json',
     'https://cdn.bootcss.com/extjs/6.0.0/ext-all.js',
-    'https://cdn.bootcss.com/extjs/6.0.0/classic/theme-neptune/resources/theme-neptune-all.css',
-    // './appjs/Model.js',
-    // './appjs/Store.js',
-    // './appjs/Util.js',
-    // './appjs/View.js',
-    // './appjs/Controller.js',
-    // './appjs/app.js',
+    'https://cdn.bootcss.com/extjs/6.0.0/classic/theme-crisp/resources/theme-crisp-all.css',
+    './app/model/Model.js',
+    './app/store/Store.js',
+    './app/utils/Util.js',
+    './app/view/View.js',
+    './app/controller/Main.js',
+    './app/Application.js',
     './json/arr.json',
-    './images/app-144.png'
+    './images/app-144.png',
+    './images/favicon.ico'
 ]
 self.addEventListener('install', e => {
     e.waitUntil(
