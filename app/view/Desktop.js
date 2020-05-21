@@ -3,6 +3,7 @@ Ext.define("EduApp.view.Desktop.from.Factor", {
     "extend": "Ext.form.Panel",
     "title": "测试因子输入",
     "xtype": "factorFrom",
+    "controller": "FactorInput",
     "layout": "fit",
     "items": [
         {
@@ -10,7 +11,9 @@ Ext.define("EduApp.view.Desktop.from.Factor", {
             "inputId": "factortext",
             "width": "100%",
             "allowBlank": false,
-            "validator": "validatorText"
+            "listeners": {
+                "added": "setValidator"
+            }
         }
     ]
 });

@@ -3,15 +3,36 @@ Ext.define("EduApp.util", {
     // 单例
     "singleton": true,
     "Util": {},
+    "OA": [],
     "info": {
         "name": "正交表生成器",
-        "version": "0.1.1",
+        "version": "0.2.0",
         "author": "cssxsh"
     },
-    "OA": [],
     init() {
+        // XLSX模块加载
+        const xlsxUrl = "./xlsx/xlsx.full.min.js";
+        Ext.Loader.loadScript({"url": xlsxUrl});
+        // 输出基本信息
         this.outputInfo();
-
+        // Service Workers
+        if (Ext.isDefined(navigator.serviceWorker)) {
+            // "serviceWorker" in navigator
+            const getWorker = (registration) => {
+                const serviceWorker = registration.installing || registration.installing || registration.waiting || registration.active;
+                return serviceWorker;
+            };
+            navigator.serviceWorker
+                .register("./serviceWorker.js")
+                .then((registartion) => {
+                    const serviceWorker = getWorker(registartion);
+                    console.log(`ServiceWorker State: ${serviceWorker.state} By ${serviceWorker.scriptURL} In ${registartion.scope}`);
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
+        }
+        // TODO: 重写到【加载数据函数】中去
         const conn = Ext.create("Ext.data.Connection", {
             "method": "GET",
             "url": "../json/arr.json",
@@ -19,43 +40,30 @@ Ext.define("EduApp.util", {
         });
         conn.request({
             failure() {
-                console.warn("加载arr.json失败");
+                console.warn("加载[arr.json]失败");
             },
             success(response) {
                 const text = response.responseText;
                 EduApp.util.OArrays = Ext.util.JSON.decode(text);
             }
         });
-
+        // TODO: 特殊组件标记, 重写到【Element】中去
         this.Element = {
             "a": document.createElement("a"),
             "input": document.createElement("input"),
             "link": Ext.getHead().getById("theme")
         };
-
+        // FIXME：初始化哈希表，重命名为valuesOfEle
         this.pValues = Ext.create("Ext.util.HashMap");
-
-        Ext.Loader.setConfig({
-            "disableCaching": false
-        });
-        Ext.Loader.setPath("EduApp", "./app");
-        // Service Workers
-        if (Object.prototype.hasOwnProperty.call(navigator, "serviceWorker")) {
-            // "serviceWorker" in navigator
-            navigator.serviceWorker.register("./sw.js").then((registartion) => {
-                console.info("支持sw:", registartion.scope);
-            });
-        }
     },
-    setTheme(name, type, callbeak) {
-        const cssText = "https://cdn.bootcss.com/extjs/6.2.0/{1}/theme-{0}/resources/theme-{0}-all.css";
+    setTheme(name, type, callbeak, jsOfTheme) {
+        const cssText = "./ext/{1}/theme-{0}/resources/theme-{0}-all.css";
         const cssUrl = Ext.String.format(cssText, name, type);
         const handredMilliSecond = 100;
-        Ext.util.CSS.removeStyleSheet("theme");
-        let mainView = Ext.getCmp(this.mainViewId);
-        let flag = false;
+        // 定义计时器
         const delayedTask = Ext.create("Ext.util.DelayedTask", () => {
-            mainView = Ext.getCmp(this.mainViewId);
+            const mainView = Ext.getCmp(this.mainViewId);
+            let flag = false;
             for (const index in document.styleSheets) {
                 if (Object.prototype.hasOwnProperty.call(document.styleSheets, index)) {
                     if (document.styleSheets[index].href === cssUrl) {
@@ -66,7 +74,7 @@ Ext.define("EduApp.util", {
             }
             if (Ext.isDefined(mainView) && flag) {
                 mainView.hide().show();
-                if (Ext.isDefined(callbeak)) {
+                if (Ext.isFunction(callbeak)) {
                     callbeak({
                         name,
                         type
@@ -76,9 +84,19 @@ Ext.define("EduApp.util", {
                 delayedTask.delay(handredMilliSecond);
             }
         });
-
+        // 更新主题并开启计时器
+        Ext.util.CSS.removeStyleSheet("theme");
         Ext.util.CSS.swapStyleSheet("theme", cssUrl);
         delayedTask.delay(handredMilliSecond);
+        // 加载主题脚本
+        if (Ext.isString(jsOfTheme)) {
+            Ext.Loader.loadScript({"url": jsOfTheme});
+        } else if (jsOfTheme === true) {
+            // https://cdn.bootcdn.net/ajax/libs/extjs/6.2.0/modern/theme-material/theme-material-debug.js
+            const jsText = "https://cdn.bootcss.com/extjs/6.2.0/{1}/theme-{0}/theme-{0}-debug.js";
+            const jsUrl = Ext.String.format(jsText, name, type);
+            Ext.Loader.loadScript({"url": jsUrl});
+        }
     },
     setMainViewId(mainViewId) {
         this.mainViewId = mainViewId;
@@ -97,10 +115,10 @@ Ext.define("EduApp.util", {
             "key": " ",
             "OArray": []
         };
-        // 最小实验数
+        // 先计算最小实验数
         let nrowsMin = 1;
         const record = [];
-        const farr = [];
+        const levels = [];
         for (const factor in factors) {
             if (Object.prototype.hasOwnProperty.call(factors, factor)) {
                 const arr = factors[factor];
@@ -112,21 +130,17 @@ Ext.define("EduApp.util", {
         for (const num in record) {
             if (Object.prototype.hasOwnProperty.call(record, num)) {
                 result.key += ` ${parseInt(num, 10)}^${record[num]}`;
-                farr.push(parseInt(num, 10));
+                // 因素等级
+                levels.push(parseInt(num, 10));
             }
         }
-
+        // 判断最小小实验数符不符合公倍数要求,不符合调整
         let nrows = nrowsMin;
-
-        const isDivided = function isDivided(num) {
-            const divided = nrows % num === 0;
-            return divided;
-        };
-        while (!farr.every(isDivided)) {
+        const isDivided = (level) => nrows % level === 0;
+        while (!levels.every(isDivided)) {
             nrows++;
         }
-
-        // Let lcm_arr = lcm4arr(arr);
+        // 整理结果
         const start = 2;
         result.key = result.key.slice(start);
         result.OArray = EduApp.util.OArrays[result.key] || false;
@@ -156,7 +170,7 @@ Ext.define("EduApp.util", {
         if (keys === null) {
             return false;
         }
-        // ①
+        // ① 检查数组列中元素平均
         const columns = [];
         keys.forEach((key) => {
             columns[key] = [];
@@ -170,7 +184,7 @@ Ext.define("EduApp.util", {
         if (!equate(columns)) {
             return false;
         }
-        // ②
+        // ② 检查数组列中元素对平均
         const lKeys = keys;
         const rKeys = keys;
         let flag = true;
@@ -190,6 +204,7 @@ Ext.define("EduApp.util", {
         return flag;
     },
     download(url, fileName, mine) {
+        // 通过<a/>下载文件
         const elmA = this.Element.a;
         Ext.apply(elmA, {
             "style": {"display": "none"},
@@ -200,19 +215,22 @@ Ext.define("EduApp.util", {
         elmA.click();
     },
     upload(mine, uploadAfter) {
+        // 通过<input/>读取文件数据
         const elmInput = this.Element.input;
         Ext.apply(elmInput, {
             "type": "file",
             "accept": mine,
             "style": {"display": "none"},
-            "oninput"(event) {
-                uploadAfter(this.files, event);
+            "oninput": (event) => {
+                const {files} = event.srcElement;
+                uploadAfter(files, event);
                 event.srcElement.value = "";
             }
         });
         elmInput.click();
     },
     translateValue(factors, key, value) {
+        // 将正交数组中的数据转换为对应的等级
         return factors[key][value];
     },
     workBookToData(workBook) {
@@ -228,7 +246,7 @@ Ext.define("EduApp.util", {
         };
         let factortext = "";
         const factorsSheet = 0;
-        const oArraySheet = 2;
+        const oArraySheet = 1;
         const infoSheet = 3;
 
         // 因子读取
@@ -242,7 +260,7 @@ Ext.define("EduApp.util", {
         }
         json.forEach((value) => {
             for (const key in value) {
-                if (Object.hasOwnProperty.call(key, value)) {
+                if (Object.hasOwnProperty.call(value, key)) {
                     result.factors[key].push(value[key]);
                 }
             }

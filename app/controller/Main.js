@@ -6,7 +6,8 @@ Ext.define("EduApp.controller.Main", {
 
     // Handler
     inputFile(button, event, type) {
-        const appPanel = button.up("[xtype=appPanel]");
+        const appPanel = this.getView();
+        // button.up("[xtype=appPanel]");
         let mime = "";
         let handler = "";
         const self = this;
@@ -43,10 +44,10 @@ Ext.define("EduApp.controller.Main", {
         this.inputFile(button, event, "xls");
     },
     outputFile(button, event, type) {
-        const appPanel = button.up("[xtype=appPanel]");
+        const appPanel = this.getView();
         let url = "";
         const workData = {};
-        const result = EduApp.util.pValues.get(appPanel.getId());
+        const result = EduApp.util.pValues.get(appPanel.getId()) || {"factors": []};
         const records = this.getOAData(appPanel);
         const cases = this.getCasesData(appPanel);
         const factortext = this.getFactorsText(appPanel);
@@ -77,8 +78,8 @@ Ext.define("EduApp.controller.Main", {
     outputFileToExecl(button, event) {
         this.outputFile(button, event, "xls");
     },
-    genCases(button) {
-        const appPanel = button.up("[xtype=appPanel]");
+    genCases() {
+        const appPanel = this.getView();
         const factors = this.getFactors(appPanel);
         if (factors === false) {
             Ext.Msg.alert("错误！", "输入为空！");
@@ -98,8 +99,8 @@ Ext.define("EduApp.controller.Main", {
             this.setData(result, appPanel);
         }
     },
-    checkOAarry(button) {
-        const appPanel = button.up("[xtype=appPanel]");
+    checkOAarry() {
+        const appPanel = this.getView();
         const arrayGrid = appPanel.down("[xtype=arrayGrid]");
 
         if (EduApp.util.isOArray(arrayGrid.getStore())) {
@@ -109,21 +110,6 @@ Ext.define("EduApp.controller.Main", {
         } else {
             Ext.Msg.alert("错误！", "正交表不符合基本要求！");
         }
-    },
-    validatorText(value) {
-        const regexp = /^[^:：,，\s]+(?:\s*[,，]\s*[^:：,，]+)*[:：][^:：,，\s]+(?:\s*[,，]\s*[^:：,，]+)*$/u;
-        let errorText = "";
-        const lines = value.split("\n");
-        lines.forEach((line, index) => {
-            if (!regexp.test(line) && line !== "") {
-                errorText += `,${index + 1}`;
-            }
-        });
-        if (errorText !== "") {
-            errorText = errorText.slice(1);
-            errorText = `输入项第${errorText}行不匹配`;
-        }
-        return errorText;
     },
 
     // Method
@@ -149,7 +135,9 @@ Ext.define("EduApp.controller.Main", {
                     "allowBlank": false,
                     "maxValue": factors[keys[index]].length - 1,
                     "minValue": 0
-                }
+                },
+                "wrap": true,
+                "flex": 1
             };
             return colunm;
         };
@@ -171,7 +159,9 @@ Ext.define("EduApp.controller.Main", {
                 "renderer": function renderer(value, cellmeta, record, rowIndex, columnIndex) {
                     const level = EduApp.util.translateValue(factors, keys[columnIndex - 1], value);
                     return level;
-                }
+                },
+                "wrap": true,
+                "flex": 1
             };
             return colunm;
         };
@@ -200,7 +190,7 @@ Ext.define("EduApp.controller.Main", {
     getCasesData(appPanel) {
         const store = appPanel.down("[xtype=casesGrid]").getStore();
         const result = EduApp.util.pValues.get(appPanel.getId());
-        const {factors} = result;
+        const factors = Ext.isDefined(result) ? result.factors : [];
         const records = store.getRange().map((record) => {
             const rdata = record.getData();
             for (const key in factors) {
