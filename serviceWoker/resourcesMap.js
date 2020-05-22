@@ -1,8 +1,9 @@
 "use strict";
 self.resources = {
-    "cacheStorageKey": "EduApp:0.2.0",
+    "cacheStorageKey": "EduApp:0.2.2",
     "cacheList": [
         "./",
+        "./html/helpInput.html",
         "./manifest.json",
         "./app/model/Model.js",
         "./app/store/OrthogonalArray.js",

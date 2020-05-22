@@ -88,13 +88,9 @@ Ext.define("EduApp.controller.Main", {
             if (!Array.isArray(result.OArray)) {
                 const {nrows} = result;
                 const {ncolumns} = result;
-                if (result.nrows === 1) {
-                    result.OArray = new Array(nrows).fill(new Array(ncolumns).fill(0));
-                } else {
-                    console.log(`Not find OArray for [${result.key}]`);
-                    Ext.Msg.alert("错误！", "未找到对应的正交表，<br>请尝试手工输入。");
-                    result.OArray = new Array(nrows).fill(new Array(ncolumns));
-                }
+                console.log(`Not find OArray for [${result.key}]`);
+                Ext.Msg.alert("错误！", `未找到[${result.key}]正交表，<br>请尝试手工输入。`);
+                result.OArray = new Array(nrows).fill(new Array(ncolumns));
             }
             this.setData(result, appPanel);
         }
@@ -149,6 +145,7 @@ Ext.define("EduApp.controller.Main", {
         ].concat(keys.map(getColunmToOArray));
         arrayGrid.reconfigure(store, colunms);
         arrayGrid.setTitle(`[${result.key}] 正交表`);
+        arrayGrid.getController().onTools();
         arrayGrid.doAutoRender();
 
         //
@@ -158,7 +155,7 @@ Ext.define("EduApp.controller.Main", {
                 "dataIndex": key,
                 "renderer": function renderer(value, cellmeta, record, rowIndex, columnIndex) {
                     const level = EduApp.util.translateValue(factors, keys[columnIndex - 1], value);
-                    return level;
+                    return level || "";
                 },
                 "wrap": true,
                 "flex": 1
@@ -172,7 +169,7 @@ Ext.define("EduApp.controller.Main", {
             }
         ].concat(keys.map(getColunmToResult));
         casesGrid.reconfigure(store, colunms);
-        casesGrid.getStore().commitChanges();
+        casesGrid.getStore();
         casesGrid.doAutoRender();
 
         //

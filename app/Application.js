@@ -7,7 +7,7 @@ Ext.Loader.setPath("EduApp", "./app");
 Ext.define("EduApp.Application", {
     "extend": "Ext.app.Application",
     "name": "EduApp",
-    "requires": ["EduApp.util", "EduApp.controller.Main", "EduApp.controller.FactorInput", "EduApp.store.OrthogonalArray"],
+    "requires": ["EduApp.util", "EduApp.controller.Main", "EduApp.controller.FactorInput", "EduApp.controller.OArrayGrid", "EduApp.store.OrthogonalArray"],
     "launch": function launch() {
         const {deviceType} = Ext.os;
 

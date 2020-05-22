@@ -5,6 +5,13 @@ Ext.define("EduApp.view.Desktop.from.Factor", {
     "xtype": "factorFrom",
     "controller": "FactorInput",
     "layout": "fit",
+    "tools": [
+        {
+            "type": "help",
+            "tooltip": "测试因子输入帮助",
+            "callback": "showHelp"
+        }
+    ],
     "items": [
         {
             "xtype": "textareafield",
@@ -21,10 +28,25 @@ Ext.define("EduApp.view.Desktop.grid.Array", {
     "extend": "Ext.grid.Panel",
     "xtype": "arrayGrid",
     "title": "正交表",
-    "plugins": {
-        "ptype": "cellediting",
-        "clicksToEdit": 1
-    },
+    "controller": "OArrayGrid",
+    "plugins": [
+        {
+            "ptype": "cellediting",
+            "clicksToEdit": 1
+        }
+    ],
+    "tools": [
+        {
+            "type": "plus",
+            "disabled": true,
+            "callback": "addRow"
+        },
+        {
+            "type": "minus",
+            "disabled": true,
+            "callback": "reduceRow"
+        }
+    ],
     "sortableColumns": false,
     "viewConfig": {
         // 列分割线
@@ -92,7 +114,7 @@ Ext.define("EduApp.view.Desktop.panel.MainPanel", {
         {
             "xtype": "button",
             "text": "生成用例",
-            "tooltip": "尝试计算输入对应的测试用例",
+            "tooltip": "尝试查找输入对应的测试用例",
             "handler": "genCases"
         },
         {

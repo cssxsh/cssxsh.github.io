@@ -24,5 +24,28 @@ Ext.define("EduApp.controller.FactorInput", {
             return result;
         };
         textareafield.validator = validator;
+    },
+    showHelp() {
+        const htmlUrl = "./html/helpInput.html";
+        const helpWin = Ext.create("Ext.window.Window", {
+            "height": 300,
+            "width": 400,
+            "padding": 2,
+            "layout": "fit",
+            "scrollable": true,
+            "alwaysOnTop": true,
+            "title": "测试因子输入帮助",
+            "items": [
+                {
+                    "xtype": "component",
+                    "autoEl": {
+                        "tag": "iframe",
+                        "src": htmlUrl
+                    }
+                }
+            ]
+        });
+        Ext.WindowManager.bringToFront(helpWin);
+        helpWin.show();
     }
 });

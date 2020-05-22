@@ -6,7 +6,7 @@ Ext.define("EduApp.util", {
     "OA": [],
     "info": {
         "name": "正交表生成器",
-        "version": "0.2.0",
+        "version": "0.2.2",
         "author": "cssxsh"
     },
     init() {
@@ -113,9 +113,10 @@ Ext.define("EduApp.util", {
             "ncolumns": 0,
             "nrows": 0,
             "key": " ",
-            "OArray": []
+            "OArray": false
         };
         // 先计算最小实验数
+        let ncolumns = 0;
         let nrowsMin = 1;
         const record = [];
         const levels = [];
@@ -123,7 +124,7 @@ Ext.define("EduApp.util", {
             if (Object.prototype.hasOwnProperty.call(factors, factor)) {
                 const arr = factors[factor];
                 nrowsMin += arr.length - 1;
-                result.ncolumns++;
+                ncolumns++;
                 record[arr.length] = (record[arr.length] || 0) + 1;
             }
         }
@@ -143,7 +144,13 @@ Ext.define("EduApp.util", {
         // 整理结果
         const start = 2;
         result.key = result.key.slice(start);
-        result.OArray = EduApp.util.OArrays[result.key] || false;
+        if (EduApp.util.OArrays[result.key]) {
+            result.OArray = EduApp.util.OArrays[result.key];
+            nrows = result.OArray.length;
+        } else if (nrows === 1) {
+            result.OArray = new Array(nrows).fill(new Array(ncolumns).fill(0));
+        }
+        result.columns = ncolumns;
         result.nrows = nrows;
         return result;
     },
