@@ -6,13 +6,19 @@ Ext.define("EduApp.view.Phone.from.Factor", {
     "xtype": "factorFrom",
     "controller": "FactorInput",
     "layout": "fit",
+    "tools": [
+        {
+            "type": "help",
+            "tooltip": "测试因子输入帮助",
+            "callback": "showHelp"
+        }
+    ],
     "items": [
         {
             "xtype": "textareafield",
             "inputId": "factortext",
             "width": "100%",
-            "allowBlank": false,
-            "validator": "validator"
+            "allowBlank": false
         }
     ]
 });
@@ -20,10 +26,25 @@ Ext.define("EduApp.view.Phone.grid.Array", {
     "extend": "Ext.grid.Panel",
     "xtype": "arrayGrid",
     "title": "正交表",
-    "plugins": {
-        "ptype": "cellediting",
-        "clicksToEdit": 1
-    },
+    "controller": "OArrayGrid",
+    "plugins": [
+        {
+            "ptype": "cellediting",
+            "clicksToEdit": 1
+        }
+    ],
+    "tools": [
+        {
+            "type": "plus",
+            "disabled": true,
+            "callback": "addRow"
+        },
+        {
+            "type": "minus",
+            "disabled": true,
+            "callback": "reduceRow"
+        }
+    ],
     "sortableColumns": false,
     "viewConfig": {
         // 列分割线
@@ -59,7 +80,7 @@ Ext.define("EduApp.view.Phone.panel.MainPanel", {
     "layout": {
         "type": "vbox",
         "align": "stretch",
-        "pack": "start"
+        "pack": "center"
     },
     "items": [
         {
