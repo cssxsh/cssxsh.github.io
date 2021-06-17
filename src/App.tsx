@@ -32,8 +32,14 @@ const OtherDns = [
     new doh.DohResolver("https://dns.twnic.tw/dns-query"),
     new doh.DohResolver("https://cloudflare-dns.com/dns-query"),
     new doh.DohResolver("https://1.0.0.1/dns-query"),
-    // new doh.DohResolver("https://doh-jp.blahdns.com/dns-query"),
-    // new doh.DohResolver("https://doh.eastas.pi-dns.com/dns-query")
+    new doh.DohResolver("https://doh-jp.blahdns.com/dns-query"),
+    new doh.DohResolver("https://doh.eastas.pi-dns.com/dns-query"),
+    new doh.DohResolver("https://doh.cleanbrowsing.org/doh/security-filter/"),
+    new doh.DohResolver("https://dns.east.comss.one/dns-query"),
+    new doh.DohResolver("https://fi.doh.dns.snopyta.org/dns-query"),
+    new doh.DohResolver("https://dns.oszx.co/dns-query"),
+    new doh.DohResolver("https://doh.dns.sb/dns-query"),
+    new doh.DohResolver("https://dnsforge.de/dns-query")
 ]
 
 const hostMap = new Map<string, [boolean, string[]]>([
@@ -44,7 +50,10 @@ const hostMap = new Map<string, [boolean, string[]]>([
     ["download.dlsite.com.wtxcdn.com", [false, [
         "download.dlsite.com"
     ]]],
-    ["j.sni.global.fastly.net", [true, [
+    ["www.dlsite.com", [true, [
+        "ssl.dlsite.com", "www.dlsite.com", "www.nijiyome.com", "www.nijiyome.jp", "download.dlsite.com"
+    ]]],
+    ["j.sni.global.fastly.net", [false, [
         "ssl.dlsite.com", "www.dlsite.com", "www.nijiyome.com", "www.nijiyome.jp", "download.dlsite.com"
     ]]],
     ["play.dlsite.com", [true, [
@@ -52,6 +61,9 @@ const hostMap = new Map<string, [boolean, string[]]>([
     ]]],
     ["login.dlsite.com", [true, [
         "login.dlsite.com"
+    ]]],
+    ["ci-en.dlsite.com",  [true, [
+        "ci-en.dlsite.com"
     ]]]
 ])
 
@@ -64,14 +76,16 @@ const download = (filename: string, text: string) => {
         const event = document.createEvent('MouseEvents');
         event.initEvent('click', true, true);
         pom.dispatchEvent(event);
-    }
-    else {
+    } else {
         pom.click();
     }
 }
 
 const App: React.FunctionComponent = () => {
-    const [result, setResult] = React.useState<Map<string, string[]>>(new Map())
+    const [result, setResult] = React.useState<Map<string, string[]>>(new Map([
+        ["play.dlsite.com", ["54.65.219.246", "54.168.144.173", "54.64.138.132"]],
+        ["login.dlsite.com", ["54.64.237.76", "35.73.75.113"]]
+    ]))
     const [load, setLoad] = React.useState<number>(0)
     const loadContent = () => {
         setResult(new Map())
@@ -93,9 +107,10 @@ const App: React.FunctionComponent = () => {
         download(path, hosts);
     }
     React.useEffect(loadContent, [])
-    const lines = ["# DLSite"].concat(Array.from(result.entries()).flatMap(([cname, hosts]) => {
+    const lines = ["# DLsite"].concat(Array.from(result.entries()).flatMap(([cname, hosts]) => {
         return [`## ${cname}`].concat(Array.from(new Set(hosts)))
     }))
+    const complete = (Array.from(result.keys()).sort().join() === Array.from(hostMap.keys()).sort().join())
     return (
         <React.Fragment>
             <CssBaseline />
@@ -103,6 +118,7 @@ const App: React.FunctionComponent = () => {
             <Button onClick={saveContent} color="primary">下载</Button>
             <h3>使用前请将已有的旧HOSTS清除，火狐加载可能存在问题，请尝试使用谷歌内核的浏览器访问。</h3>
             <h3>请保存Hosts至路径覆盖原有文件 C:\Windows\System32\drivers\etc\hosts （最好先备份）</h3>
+            <h3>{complete ? `DNS加载完成` : `DNS加载中，请等待...${load}`}</h3>
             <Paper>
                 {lines.map(line => (<li key={line}>{line}</li>))}
             </Paper>
