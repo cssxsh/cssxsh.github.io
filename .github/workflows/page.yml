@@ -15,6 +15,9 @@ jobs:
       - name: Install
         run: yarn install
 
+      - name: Upgrade
+        run: yarn upgrade
+
       - name: Deploy
         run: yarn run deploy
         env:
