@@ -17,3 +17,5 @@ jobs:
 
       - name: Deploy
         run: yarn run deploy
+        env:
+          NODE_OPTIONS: "--openssl-legacy-provider"
