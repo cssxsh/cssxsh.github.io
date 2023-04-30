@@ -43,8 +43,8 @@ const OtherDns = [
 ]
 
 const hostMap = new Map<string, [boolean, string[]]>([
-    ["download.sangfor.com.cn", [false, [
-        "trial.dlsite.com", "img.dlsite.jp", "media.dlsite.com", "play.dl.dlsite.com", "media.ci-en.jp",
+    ["eisysinc.qtlcdn.com", [false, [
+        "trial.dlsite.com", "img.dlsite.jp", "media.dlsite.com", "media.ci-en.jp",
         "media.stg.ci-en.jp", "file.chobit.cc", "img.chobit.cc"
     ]]],
     ["download.dlsite.com.wtxcdn.com", [false, [
@@ -54,7 +54,8 @@ const hostMap = new Map<string, [boolean, string[]]>([
         "ssl.dlsite.com", "www.dlsite.com", "www.nijiyome.com", "www.nijiyome.jp", "download.dlsite.com"
     ]]],
     ["j.sni.global.fastly.net", [false, [
-        "ssl.dlsite.com", "www.dlsite.com", "www.nijiyome.com", "www.nijiyome.jp", "download.dlsite.com"
+        "ssl.dlsite.com", "www.dlsite.com", "www.nijiyome.com", "www.nijiyome.jp", "download.dlsite.com",
+        "play.dl.dlsite.com"
     ]]],
     ["play.dlsite.com", [true, [
         "play.dlsite.com"
